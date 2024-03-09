@@ -11,6 +11,7 @@ const fileIndex = {};
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
+    const id = req.body.id;
     if (!fileIndex[req.body.id + "-" + file.fieldname]) {
       fileIndex[req.body.id + "-" + file.fieldname] = 1;
     }
@@ -19,15 +20,16 @@ const storage = multer.diskStorage({
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
-    if (!fs.existsSync(uploadDir + req.body.id)) {
-      fs.mkdirSync(uploadDir + req.body.id, { recursive: true });
+    if (!fs.existsSync(uploadDir + id)) {
+      fs.mkdirSync(uploadDir + id, { recursive: true });
     }
-    cb(null, uploadDir + req.body.id);
+    cb(null, uploadDir + id);
   },
   filename: function (req, file, cb) {
     const ext = file.originalname.split(".").pop();
     cb(
       null,
+
       req.body.id +
         "-" +
         file.fieldname +
@@ -38,7 +40,8 @@ const storage = multer.diskStorage({
     );
   },
 });
-app.use(express.urlencoded({ extended: false }));
+app.use("/uploads", express.static("uploads"));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 const upload = multer({ storage: storage });
 app.use(
@@ -72,7 +75,7 @@ app.post("/api/wedding", upload.any(), async (req, res) => {
 
   await models.wedding.create({
     id,
-    themeColor,
+    themeColor: themeColor || "#cccccc",
     name,
     weddingInfo,
     date,
@@ -99,7 +102,7 @@ app.post("/api/wedding", upload.any(), async (req, res) => {
 
 app.get("/api/wedding", async (req, res) => {
   const weddings = await models.wedding.findAll({
-    attributes: ["id"],
+    attributes: ["id", "name", "createdAt"],
   });
   console.log(weddings);
   res.status(200).send(weddings);
