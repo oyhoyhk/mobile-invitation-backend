@@ -101,9 +101,11 @@ app.post("/api/wedding", upload.any(), async (req, res) => {
 });
 
 app.get("/api/wedding", async (req, res) => {
+  console.log("o=g");
   const weddings = await models.wedding.findAll({
     attributes: ["id", "name", "createdAt"],
   });
+  console.log("hi");
   console.log(weddings);
   res.status(200).send(weddings);
 });
@@ -118,7 +120,7 @@ app.get("/api/wedding/:id", async (req, res) => {
       attributes: ["url"],
     },
   });
-  res.status(200).send(wedding);
+  return res.status(200).send(wedding);
 });
 
 app.listen(port, () => {
