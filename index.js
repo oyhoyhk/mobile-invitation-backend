@@ -101,12 +101,9 @@ app.post("/api/wedding", upload.any(), async (req, res) => {
 });
 
 app.get("/api/wedding", async (req, res) => {
-  console.log("o=g");
   const weddings = await models.wedding.findAll({
     attributes: ["id", "name", "createdAt"],
   });
-  console.log("hi");
-  console.log(weddings);
   res.status(200).send(weddings);
 });
 
@@ -121,6 +118,52 @@ app.get("/api/wedding/:id", async (req, res) => {
     },
   });
   return res.status(200).send(wedding);
+});
+
+app.post("/api/attendance", (req, res) => {
+  console.log(req.body);
+  return res.status(200).send("ok");
+});
+
+app.post("/api/guestBook", async (req, res) => {
+  console.log(req.body);
+  const { id, name, password, message } = req.body;
+
+  await models.attendance.create({
+    id,
+    name,
+    password,
+    title: message,
+  });
+  console.log("방명록 등록 성공");
+  return res.status(200).send("ok");
+});
+
+app.get("/api/guestBook", async (req, res) => {
+  const guestBooks = await models.attendance.findAll({
+    where: {
+      id: req.query.id,
+    },
+    attributes: ["idx", "name", "title", "createdAt"],
+  });
+  res.status(200).send(guestBooks);
+});
+
+app.delete("/api/guestBook", async (req, res) => {
+  const { id, idx, password } = req.body;
+  const guestBook = await models.attendance.findOne({
+    where: {
+      id,
+      idx,
+    },
+  });
+  console.log(guestBook.password, password);
+  if (guestBook && guestBook.password === password) {
+    await guestBook.destroy();
+    return res.status(200).send("ok");
+  } else {
+    return res.status(400).send("잘못된 정보입니다.");
+  }
 });
 
 app.listen(port, () => {
