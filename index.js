@@ -121,12 +121,10 @@ app.get("/api/wedding/:id", async (req, res) => {
 });
 
 app.post("/api/attendance", (req, res) => {
-  console.log(req.body);
   return res.status(200).send("ok");
 });
 
 app.post("/api/guestBook", async (req, res) => {
-  console.log(req.body);
   const { id, name, password, message } = req.body;
 
   await models.attendance.create({
@@ -135,7 +133,6 @@ app.post("/api/guestBook", async (req, res) => {
     password,
     title: message,
   });
-  console.log("방명록 등록 성공");
   return res.status(200).send("ok");
 });
 
@@ -157,7 +154,6 @@ app.delete("/api/guestBook", async (req, res) => {
       idx,
     },
   });
-  console.log(guestBook.password, password);
   if (guestBook && guestBook.password === password) {
     await guestBook.destroy();
     return res.status(200).send("ok");
