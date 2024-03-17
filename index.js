@@ -59,9 +59,11 @@ app.post("/api/wedding", upload.any(), async (req, res) => {
   const {
     id,
     themeColor,
+    buttonColor,
     name,
     weddingInfo,
     date,
+    heartInfo,
     locationInfo,
     firstDescription,
     secondDescription,
@@ -76,9 +78,11 @@ app.post("/api/wedding", upload.any(), async (req, res) => {
   await models.wedding.create({
     id,
     themeColor: themeColor || "#cccccc",
+    buttonColor,
     name,
     weddingInfo,
     date,
+    heartInfo,
     locationInfo,
     firstDescription,
     secondDescription,

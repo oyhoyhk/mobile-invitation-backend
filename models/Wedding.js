@@ -13,6 +13,10 @@ module.exports = (sequelize) =>
       type: DataTypes.STRING,
       allowNull: false,
     },
+    buttonColor: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -32,6 +36,9 @@ module.exports = (sequelize) =>
     date: {
       type: DataTypes.DATE,
       allowNull: false,
+    },
+    heartInfo: {
+      type: DataTypes.STRING,
     },
     locationInfo: {
       type: DataTypes.STRING,
