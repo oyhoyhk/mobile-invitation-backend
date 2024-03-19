@@ -146,8 +146,16 @@ app.get("/api/guestBook", async (req, res) => {
       id: req.query.id,
     },
     attributes: ["idx", "name", "title", "createdAt"],
+    limit: 2 * Number(req.query.page),
+    offset: 0,
+    order: [["createdAt", "DESC"]],
   });
-  res.status(200).send(guestBooks);
+  const totalLength = await models.attendance.count({
+    where: {
+      id: req.query.id,
+    },
+  });
+  res.status(200).send({ guestBooks, totalLength });
 });
 
 app.delete("/api/guestBook", async (req, res) => {
