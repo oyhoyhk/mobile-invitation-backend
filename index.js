@@ -57,7 +57,6 @@ app.post("/api/wedding", upload.any(), async (req, res) => {
   // FormData에 있는 데이터들을 꺼내어 console에 출력
 
   const {
-    id,
     themeColor,
     buttonColor,
     name,
@@ -74,6 +73,23 @@ app.post("/api/wedding", upload.any(), async (req, res) => {
     finalPhotoColor,
     finalPhotoText,
   } = req.body;
+
+  let id = generateKey();
+
+  let result = await models.wedding.findOne({
+    where: {
+      id,
+    },
+  });
+
+  while (result.length !== 0) {
+    id = generateKey();
+    result = await models.wedding.findOne({
+      where: {
+        id,
+      },
+    });
+  }
 
   await models.wedding.create({
     id,
@@ -227,3 +243,16 @@ app.delete("/api/guestBook", async (req, res) => {
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
+
+function generateKey() {
+  const characters =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const length = 6;
+
+  let key = "";
+  for (let i = 0; i < length; i++) {
+    key += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+
+  return key;
+}
