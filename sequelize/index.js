@@ -2,6 +2,7 @@ const { Sequelize } = require("sequelize");
 const weddingDefiner = require("../models/Wedding");
 const imageDefiner = require("../models/Image");
 const attendanceDefiner = require("../models/Attendance");
+const participantsDefiner = require("../models/Participants");
 
 require("dotenv").config();
 
@@ -19,9 +20,11 @@ const sequelize = new Sequelize(
 const Wedding = weddingDefiner(sequelize);
 const Image = imageDefiner(sequelize);
 const Attendance = attendanceDefiner(sequelize);
+const Participants = participantsDefiner(sequelize);
 
 Wedding.hasMany(Image, { foreignKey: "id" });
 Wedding.hasMany(Attendance, { foreignKey: "id" });
+Wedding.hasMany(Participants, { foreignKey: "id" });
 
 sequelize
   .sync({ alter: true })

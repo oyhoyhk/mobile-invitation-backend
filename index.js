@@ -124,20 +124,55 @@ app.get("/api/wedding/:id", async (req, res) => {
   return res.status(200).send(wedding);
 });
 
-app.post("/api/attendance", (req, res) => {
-  return res.status(200).send("ok");
+app.post("/api/attendance", async (req, res) => {
+  const { id, receiver, name, tel, memo, meal, count } = req.body;
+  try {
+    await models.participant.create({
+      id,
+      receiver,
+      name,
+      tel,
+      memo,
+      meal,
+      count: Number(count),
+    });
+    return res.status(200).send("ok");
+  } catch (e) {
+    console.log(e);
+    return res.status(400).send("error");
+  }
 });
 
 app.post("/api/guestBook", async (req, res) => {
   const { id, name, password, message } = req.body;
 
-  await models.attendance.create({
-    id,
-    name,
-    password,
-    title: message,
-  });
-  return res.status(200).send("ok");
+  try {
+    await models.attendance.create({
+      id,
+      name,
+      password,
+      title: message,
+    });
+
+    const guestBooks = await models.attendance.findAll({
+      where: {
+        id,
+      },
+      attributes: ["idx", "name", "title", "createdAt"],
+      limit: 2,
+      offset: 0,
+      order: [["createdAt", "DESC"]],
+    });
+
+    const totalLength = await models.attendance.count({
+      where: {
+        id,
+      },
+    });
+    res.status(200).send({ guestBooks, totalLength });
+  } catch (e) {
+    res.status(400).send({ guestBooks: [], totalLength: 0 });
+  }
 });
 
 app.get("/api/guestBook", async (req, res) => {
@@ -168,7 +203,22 @@ app.delete("/api/guestBook", async (req, res) => {
   });
   if (guestBook && guestBook.password === password) {
     await guestBook.destroy();
-    return res.status(200).send("ok");
+    const guestBooks = await models.attendance.findAll({
+      where: {
+        id,
+      },
+      attributes: ["idx", "name", "title", "createdAt"],
+      limit: 2,
+      offset: 0,
+      order: [["createdAt", "DESC"]],
+    });
+
+    const totalLength = await models.attendance.count({
+      where: {
+        id,
+      },
+    });
+    return res.status(200).send({ guestBooks, totalLength });
   } else {
     return res.status(400).send("잘못된 정보입니다.");
   }
