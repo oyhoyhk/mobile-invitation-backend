@@ -82,7 +82,7 @@ app.post("/api/wedding", upload.any(), async (req, res) => {
     },
   });
 
-  while (result.length !== 0) {
+  while (result) {
     id = generateKey();
     result = await models.wedding.findOne({
       where: {
