@@ -53,10 +53,36 @@ app.use(
 app.get("/", async (req, res) => {
   res.send("Hello World!");
 });
+
+app.get("/api/key", async (req, res) => {
+  let id = generateKey();
+  try {
+    let result = await models.wedding.findOne({
+      where: {
+        id,
+      },
+    });
+
+    while (result) {
+      id = generateKey();
+      result = await models.wedding.findOne({
+        where: {
+          id,
+        },
+      });
+    }
+    res.status(200).send(id);
+  } catch (e) {
+    console.log(e);
+    res.status(400).send(null);
+  }
+});
+
 app.post("/api/wedding", upload.any(), async (req, res) => {
   // FormData에 있는 데이터들을 꺼내어 console에 출력
 
   const {
+    id,
     themeColor,
     buttonColor,
     name,
@@ -74,50 +100,38 @@ app.post("/api/wedding", upload.any(), async (req, res) => {
     finalPhotoText,
   } = req.body;
 
-  let id = generateKey();
-
-  let result = await models.wedding.findOne({
-    where: {
+  try {
+    await models.wedding.create({
       id,
-    },
-  });
-
-  while (result) {
-    id = generateKey();
-    result = await models.wedding.findOne({
-      where: {
-        id,
-      },
+      themeColor: themeColor || "#cccccc",
+      buttonColor,
+      name,
+      weddingInfo,
+      date,
+      heartInfo,
+      locationInfo,
+      firstDescription,
+      secondDescription,
+      familyInfo,
+      transportInfo,
+      accountInfo,
+      attendanceMessage,
+      finalPhotoColor,
+      finalPhotoText,
     });
+
+    await models.image.bulkCreate(
+      req.files.map((file) => ({
+        id,
+        url: file.path,
+      }))
+    );
+
+    res.status(200).send("FormData received successfully.");
+  } catch (e) {
+    console.log(e);
+    res.status(400).send("error on insert data");
   }
-
-  await models.wedding.create({
-    id,
-    themeColor: themeColor || "#cccccc",
-    buttonColor,
-    name,
-    weddingInfo,
-    date,
-    heartInfo,
-    locationInfo,
-    firstDescription,
-    secondDescription,
-    familyInfo,
-    transportInfo,
-    accountInfo,
-    attendanceMessage,
-    finalPhotoColor,
-    finalPhotoText,
-  });
-
-  await models.image.bulkCreate(
-    req.files.map((file) => ({
-      id,
-      url: file.path,
-    }))
-  );
-
-  res.status(200).send("FormData received successfully.");
 });
 
 app.get("/api/wedding", async (req, res) => {
